@@ -14,6 +14,14 @@ window.onload = function() {
             };
     })();
 
+    // Stats.js
+    // Javascript Performance Monitor.
+    // This class provides a simple info box that will help you monitor your code performance.
+    // https://github.com/mrdoob/stats.js
+    var stats = new Stats();
+	stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+	document.body.appendChild( stats.dom );
+
     // Install logic
     // If the app has already been installed, we don't do anything.
     // Otherwise we'll show the button, and hide it when/if the user installs the app.
@@ -118,27 +126,33 @@ window.onload = function() {
         // Speed in pixels per second
         var playerSpeed = 100;
 
-        if(GameInput.isDown('DOWN')) {
+        if (GameInput.isDown('DOWN')
+        || GameInput.isDown('S')) {
             // dt is the number of seconds passed, so multiplying by
             // the speed gives you the number of pixels to move
             player.y += playerSpeed * dt;
         }
 
-        if(GameInput.isDown('UP')) {
+        if (GameInput.isDown('UP')
+        || GameInput.isDown('W')) {
             player.y -= playerSpeed * dt;
         }
 
-        if(GameInput.isDown('LEFT')) {
+        if (GameInput.isDown('LEFT')
+        || GameInput.isDown('A')) {
             player.x -= playerSpeed * dt;
         }
 
-        if(GameInput.isDown('RIGHT')) {
+        if (GameInput.isDown('RIGHT')
+        || GameInput.isDown('D')) {
             player.x += playerSpeed * dt;
         }
 
         // You can pass any letter to `isDown`, in addition to DOWN,
         // UP, LEFT, RIGHT, and SPACE:
-        // if(GameInput.isDown('a')) { ... }
+        if (GameInput.isDown('SPACE')) {
+            console.log('GameInput.isDown: SPACE');
+        }
     }
 
     // Draw everything
@@ -148,6 +162,18 @@ window.onload = function() {
 
         ctx.fillStyle = 'green';
         ctx.fillRect(player.x, player.y, player.sizeX, player.sizeY);
+
+        // Stress testing for stats.js monitoring
+        var time = performance.now() / 1000;
+        ctx.fillStyle = 'rgba(127,0,255,0.05)';
+        for ( var i = 0; i < 2000; i ++ ) {
+            var x = Math.cos( time + i * 0.01 ) * 196 + 256;
+            var y = Math.sin( time + i * 0.01234 ) * 196 + 256;
+
+            ctx.beginPath();
+            ctx.arc( x, y, 10, 0, Math.PI * 2, true );
+            ctx.fill();
+        }
     }
 
     // The main game loop
@@ -155,12 +181,14 @@ window.onload = function() {
         if(!running) {
             return;
         }
-
+        stats.begin();
         var now = Date.now();
         var dt = (now - then) / 1000.0;
 
         update(dt);
         render();
+
+        stats.end();
 
         then = now;
         requestAnimFrame(main);
